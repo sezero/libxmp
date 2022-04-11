@@ -249,6 +249,9 @@ static int load_module(xmp_context opaque, HIO_HANDLE *h)
 
 	D_(D_WARN "load");
 	test_result = load_result = -1;
+#ifndef LIBXMP_CORE_PLAYER
+	m->md5[0] = 0;
+#endif
 	for (i = 0; format_loaders[i] != NULL; i++) {
 		hio_seek(h, 0, SEEK_SET);
 
@@ -311,7 +314,7 @@ static int load_module(xmp_context opaque, HIO_HANDLE *h)
 	}
 
 #ifndef LIBXMP_CORE_PLAYER
-	if (test_result == 0 && load_result == 0)
+	if (test_result == 0 && load_result == 0 && m->md5[0] == 0)
 		set_md5sum(h, m->md5);
 #endif
 

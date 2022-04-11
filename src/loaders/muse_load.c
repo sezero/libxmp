@@ -22,6 +22,15 @@
 
 #include "loader.h"
 #include "../miniz.h"
+#include "../md5.h"
+
+static void set_md5sum(HIO_HANDLE *h, unsigned char *md5)
+{
+	MD5_CTX ctx;
+	MD5Init(&ctx);
+	MD5Update(&ctx, h->handle.mem->start, h->handle.mem->size);
+	MD5Final(md5, &ctx);
+}
 
 static int muse_test(HIO_HANDLE *, char *, const int);
 static int muse_load(struct module_data *, HIO_HANDLE *, const int);
@@ -107,6 +116,9 @@ static int muse_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		if (err == 0) {
 			err = libxmp_loader_gal4.loader(m, tmp, 0);
 		}
+	}
+	if (err == 0) {
+		set_md5sum(tmp, m->md5);
 	}
 	hio_close(tmp);
 
