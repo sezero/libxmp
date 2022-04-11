@@ -24,11 +24,11 @@
 #include "../miniz.h"
 #include "../md5.h"
 
-static void set_md5sum(HIO_HANDLE *h, unsigned char *md5)
+static void set_md5sum(unsigned char *src, unsigned char *md5, size_t sz)
 {
 	MD5_CTX ctx;
 	MD5Init(&ctx);
-	MD5Update(&ctx, h->handle.mem->start, h->handle.mem->size);
+	MD5Update(&ctx, src, sz);
 	MD5Final(md5, &ctx);
 }
 
@@ -65,14 +65,14 @@ static int muse_test(HIO_HANDLE * f, char *t, const int start)
 
 static int muse_load(struct module_data *m, HIO_HANDLE *f, const int start)
 {
-	long in_buf_size;
-	void *pCmp_data, *pOut_buf;
-	size_t pOut_len;
+	void *in, *out;
 	HIO_HANDLE *tmp;
+	long inlen;
+	size_t outlen;
 	int err;
 
-	in_buf_size = hio_size(f);
-	if (in_buf_size < 24 || in_buf_size >= LIBXMP_DEPACK_LIMIT) {
+	inlen = hio_size(f);
+	if (inlen < 24 || inlen >= LIBXMP_DEPACK_LIMIT) {
 		D_(D_CRIT "bad file size");
 		return -1;
 	}
@@ -81,29 +81,29 @@ static int muse_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		return -1;
 	}
 
-	in_buf_size -= 24;
-	pCmp_data = (uint8 *)malloc(in_buf_size);
-	if (!pCmp_data) {
+	inlen -= 24;
+	in = (uint8 *)malloc(inlen);
+	if (!in) {
 		D_(D_CRIT "Out of memory");
 		return -1;
 	}
-	if (hio_read(pCmp_data, 1, in_buf_size, f) != in_buf_size) {
+	if (hio_read(in, 1, inlen, f) != inlen) {
 		D_(D_CRIT "Failed reading input file");
-		free(pCmp_data);
+		free(in);
 		return -1;
 	}
 
-	pOut_buf = tinfl_decompress_mem_to_heap(pCmp_data, in_buf_size, &pOut_len, TINFL_FLAG_PARSE_ZLIB_HEADER);
-	if (!pOut_buf) {
-		free(pCmp_data);
+	out = tinfl_decompress_mem_to_heap(in, inlen, &outlen, TINFL_FLAG_PARSE_ZLIB_HEADER);
+	if (!out) {
+		free(in);
 		D_(D_CRIT "tinfl_decompress_mem_to_heap() failed");
 		return -1;
 	}
-	free(pCmp_data);
+	free(in);
 
-	tmp = hio_open_mem(pOut_buf, pOut_len, 1);
+	tmp = hio_open_mem(out, outlen, 1);
 	if (!tmp) { /* ehh.. */
-		free(pOut_buf);
+		free(out);
 		return -1;
 	}
 	err = libxmp_loader_gal5.test(tmp, NULL, 0);
@@ -118,7 +118,7 @@ static int muse_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		}
 	}
 	if (err == 0) {
-		set_md5sum(tmp, m->md5);
+		set_md5sum((unsigned char *)out, m->md5, outlen);
 	}
 	hio_close(tmp);
 
