@@ -20,7 +20,6 @@ extern const struct format_loader libxmp_loader_it;
 extern const struct format_loader libxmp_loader_s3m;
 
 #ifndef LIBXMP_CORE_PLAYER
-
 extern const struct format_loader libxmp_loader_flt;
 extern const struct format_loader libxmp_loader_st;
 extern const struct format_loader libxmp_loader_stm;
@@ -34,6 +33,7 @@ extern const struct format_loader libxmp_loader_ult;
 extern const struct format_loader libxmp_loader_liq;
 extern const struct format_loader libxmp_loader_no;
 extern const struct format_loader libxmp_loader_masi;
+extern const struct format_loader libxmp_loader_muse;
 extern const struct format_loader libxmp_loader_gal5;
 extern const struct format_loader libxmp_loader_gal4;
 extern const struct format_loader libxmp_loader_psm;
@@ -83,7 +83,7 @@ extern const struct format_loader libxmp_loader_polly;
 extern const struct format_loader libxmp_loader_stc;
 #endif
 
-#define NUM_FORMATS 53
+#define NUM_FORMATS 54
 #define NUM_PW_FORMATS 43
 
 #ifndef LIBXMP_NO_PROWIZARD
