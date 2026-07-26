@@ -1,7 +1,7 @@
 Stable versions
 ---------------
 
-4.7.2 (?):
+4.7.2 (20260726):
 	Changes by Alice Rowan:
 	- Fix loading Startrekker modules from memory/handle/callbacks.
 	Changes by Ozkan Sezer:
