@@ -67,6 +67,8 @@ static inline int libxmp_test_function(xmp_context opaque, const uint8_t *data,
 #ifdef HAVE_FMEMOPEN
 	FILE *f;
 #endif
+	struct rng_state test_rng;
+	uint32 tmp[4];
 	int play_error = 0;
 	int test_error = 0;
 	int test_print = 0;
@@ -79,14 +81,16 @@ static inline int libxmp_test_function(xmp_context opaque, const uint8_t *data,
 	if (load_error == 0) {
 		/* Fuzz playback. */
 		struct xmp_module_info info;
-		int interp, format, mono, uns, i;
+		int interp, format, mono, uns, i, j;
 
 		/* Derive config from the MD5 for now... :( */
 		xmp_get_module_info(opaque, &info);
-		interp = info.md5[7] * 3U / 256;
-		format = info.md5[12] * 3U / 256;
-		mono = (info.md5[3] & 1) ^ (info.md5[14] >> 7);
-		uns = (info.md5[9] >> 7) ^ (info.md5[1] & 1);
+		memcpy(tmp, info.md5, sizeof(info.md5));
+		libxmp_set_random(&test_rng, tmp[0] ^ tmp[1] ^ tmp[2] ^ tmp[3]);
+		interp = libxmp_get_random(&test_rng, 3);
+		format = libxmp_get_random(&test_rng, 3);
+		mono = libxmp_get_random(&test_rng, 2);
+		uns = libxmp_get_random(&test_rng, 2);
 
 		switch (interp) {
 		case 0:
@@ -188,6 +192,20 @@ static inline int libxmp_test_function(xmp_context opaque, const uint8_t *data,
 		for (i = 0; i < (int)ARRAY_SIZE(seek_dests); i++) {
 			xmp_seek_time(opaque, seek_dests[i]);
 			xmp_play_frame(opaque);
+		}
+
+		/* Seek to a random position, set player mode, play a few frames. */
+		for (i = 0; i < 4; i++) {
+			int pos = libxmp_get_random(&test_rng, info.mod->len);
+			int mode = libxmp_get_random(&test_rng, 32);
+			int num = frames_to_play / 4;
+
+			xmp_set_position(opaque, pos);
+			xmp_set_player(opaque, XMP_PLAYER_MODE, mode);
+
+			for (j = 0; j < num; j++) {
+				xmp_play_frame(opaque);
+			}
 		}
 
 		/* TODO: other API functions? */
