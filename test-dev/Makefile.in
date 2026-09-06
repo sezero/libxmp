@@ -635,6 +635,7 @@ FUZZER		= misc \
 		  play_mod_bad_marker_sequence \
 		  play_s3m_low_period_vibrato \
 		  play_s3m_marker_sequence \
+		  play_s3m_marker_sequence_2 \
 		  play_xm_bad_env_sustain \
 		  play_xm_bad_instrument \
 		  play_xm_vol_env_clamp \
