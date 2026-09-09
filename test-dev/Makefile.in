@@ -654,6 +654,7 @@ FUZZER		= misc \
 		  play_it_sustain_bidi \
 		  play_it_truncated \
 		  play_it_vol_clamp \
+		  play_it_zero_samples \
 		  play_669_low_freq \
 		  play_abk_0_length_track \
 		  play_asylum_bad_effects \
