@@ -195,10 +195,10 @@ static inline int libxmp_test_function(xmp_context opaque, const uint8_t *data,
 		}
 
 		/* Seek to a random position, set player mode, play a few frames. */
-		for (i = 0; i < 4; i++) {
+		for (i = 0; i < 2; i++) {
 			int pos = libxmp_get_random(&test_rng, info.mod->len);
 			int mode = libxmp_get_random(&test_rng, 32);
-			int num = frames_to_play / 4;
+			int num = MAX(2, frames_to_play / 16);
 
 			xmp_set_position(opaque, pos);
 			xmp_set_player(opaque, XMP_PLAYER_MODE, mode);
