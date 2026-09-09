@@ -563,7 +563,7 @@ static void update_invloop(struct context_data *ctx, struct channel_data *xc)
 {
 	struct xmp_sample *xxs = libxmp_get_sample(ctx, xc->smp);
 	struct module_data *m = &ctx->m;
-	int lps = 0, len = -1;
+	int lps = -1, lpe = -1, len = -1;
 
 	/* If an instrument number is present, reset the position. */
 	if (ctx->p.frame == 0 && TEST(NEW_INS)) {
@@ -573,25 +573,26 @@ static void update_invloop(struct context_data *ctx, struct channel_data *xc)
 	xc->invloop.count += invloop_table[xc->invloop.speed];
 
 	if (xxs != NULL) {
+		len = xxs->len;
 		if (xxs->flg & XMP_SAMPLE_LOOP) {
 			lps = xxs->lps;
-			len = xxs->lpe - lps;
+			lpe = xxs->lpe;
 		} else if (xxs->flg & XMP_SAMPLE_SLOOP) {
 			/* Some formats that support invert loop use sustain
 			 * loops instead (Digital Symphony). */
 			lps = m->xtra[xc->smp].sus;
-			len = m->xtra[xc->smp].sue - lps;
+			lpe = m->xtra[xc->smp].sue;
 		}
 	}
 
-	if (len >= 0 && xc->invloop.count >= 128) {
+	if (lps >= 0 && lps <= lpe && xc->invloop.count >= 128) {
 		xc->invloop.count = 0;
 
-		if (++xc->invloop.pos > len) {
+		if (++xc->invloop.pos > lpe - lps) {
 			xc->invloop.pos = 0;
 		}
 
-		if (xxs->data == NULL) {
+		if (xxs->data == NULL || lps >= len || lpe > len) {
 			return;
 		}
 
