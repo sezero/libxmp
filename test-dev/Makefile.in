@@ -635,8 +635,10 @@ FUZZER		= misc \
 		  play_mod_bad_marker_sequence \
 		  play_s3m_low_period_vibrato \
 		  play_s3m_marker_sequence \
+		  play_s3m_marker_sequence_2 \
 		  play_xm_bad_env_sustain \
 		  play_xm_bad_instrument \
+		  play_xm_bad_instrument_invloop \
 		  play_xm_vol_env_clamp \
 		  play_it_adpcm_bound \
 		  play_it_bad_env \
@@ -652,6 +654,7 @@ FUZZER		= misc \
 		  play_it_sustain_bidi \
 		  play_it_truncated \
 		  play_it_vol_clamp \
+		  play_it_zero_samples \
 		  play_669_low_freq \
 		  play_abk_0_length_track \
 		  play_asylum_bad_effects \

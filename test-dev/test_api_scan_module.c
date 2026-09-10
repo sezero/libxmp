@@ -243,6 +243,64 @@ TEST(test_api_scan_module)
 	fail_unless(ret == -XMP_END, "nothing to play");
 
 	xmp_release_module(opaque);
+
+	/* Rescan causing sequence changes mid-playback: MOD -> S3M */
+	create_simple_module(ctx, 2, 2);
+	libxmp_free_scan(ctx);
+	new_event(ctx, 0, 0, 0, 0, 0, 0, FX_SPEED, 0x01, FX_BREAK, 0);
+	set_order(ctx, 0, 0);
+	set_order(ctx, 1, 0xff);
+	set_order(ctx, 2, 0);
+	set_order(ctx, 3, 0xff);
+	set_order(ctx, 4, 0);
+	set_order(ctx, 5, 0xff);
+	libxmp_prepare_scan(ctx);
+
+	xmp_scan_module(opaque);
+	xmp_start_player(opaque, XMP_MIN_SRATE, 0);
+	xmp_get_module_info(opaque, &minfo);
+	fail_unless(minfo.mod->len == 6, "should have 6 positions");
+	fail_unless(minfo.num_sequences == 1, "should have 1 sequence");
+	ret = xmp_play_frame(opaque);
+	fail_unless(ret == 0, "should play");
+	xmp_get_frame_info(opaque, &info);
+	fail_unless(info.pos == 0, "should be position 0");
+	fail_unless(info.sequence == 0, "should be sequence 0");
+	ret = xmp_play_frame(opaque);
+	fail_unless(ret == 0, "should play");
+	xmp_get_frame_info(opaque, &info);
+	fail_unless(info.pos == 2, "should be position 2");
+	fail_unless(info.sequence == 0, "should be sequence 0");
+
+	xmp_set_player(opaque, XMP_PLAYER_MODE, XMP_MODE_S3M); /* rescan */
+	ret = xmp_play_frame(opaque);
+	fail_unless(ret == 0, "should play");
+	xmp_get_frame_info(opaque, &info);
+	/* Note: prior to 4.7.3, this remained in sequence 0. */
+	fail_unless(info.pos == 2, "should be position 2");
+	fail_unless(info.sequence == 1, "should be sequence 1");
+
+	/* Rescan causing sequence changes mid-playback: S3M -> MOD */
+	xmp_set_position(opaque, 4);
+	ret = xmp_play_frame(opaque);
+	fail_unless(ret == 0, "should play");
+	xmp_get_frame_info(opaque, &info);
+	fail_unless(info.pos == 4, "should be position 4");
+	fail_unless(info.sequence == 2, "should be sequence 2");
+	ret = xmp_play_frame(opaque);
+	fail_unless(ret == 0, "should play");
+	xmp_get_frame_info(opaque, &info);
+	fail_unless(info.pos == 4, "should be position 4");
+	fail_unless(info.sequence == 2, "should be sequence 2");
+
+	xmp_set_player(opaque, XMP_PLAYER_MODE, XMP_MODE_MOD); /* rescan */
+	ret = xmp_play_frame(opaque);
+	fail_unless(ret == 0, "should play");
+	xmp_get_frame_info(opaque, &info);
+	fail_unless(info.pos == 0, "should be position 0");
+	fail_unless(info.sequence == 0, "should be sequence 0");
+
+	xmp_release_module(opaque);
 	xmp_free_context(opaque);
 }
 END_TEST

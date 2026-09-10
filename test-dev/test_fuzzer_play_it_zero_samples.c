@@ -1,11 +1,11 @@
 #include "test.h"
 
-/* MDL modules without samples but with instruments can exist and are
+/* IT modules without samples but with instruments can exist and are
  * valid. Modules like this have found bugs in the FT2 and MOD player
  * routines, so try playing a few frames with different players.
  */
 
-TEST(test_fuzzer_play_mdl_zero_samples)
+TEST(test_fuzzer_play_it_zero_samples)
 {
 	static const struct playback_sequence sequence[] =
 	{
@@ -22,6 +22,6 @@ TEST(test_fuzzer_play_mdl_zero_samples)
 		{ PLAY_FRAMES,		8, 0 },
 		{ PLAY_END,		0, 0 }
 	};
-	compare_playback("data/f/play_mdl_zero_samples.mdl", sequence, 4000, 0, 0);
+	compare_playback("data/f/play_it_zero_samples.it", sequence, 4000, 0, 0);
 }
 END_TEST

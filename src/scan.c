@@ -812,5 +812,12 @@ int libxmp_scan_sequences(struct context_data *ctx)
 		}
 	}
 
+	/* If the module is currently playing, rescanning the sequences may
+	 * invalidate the current sequence. */
+	if (ctx->state >= XMP_STATE_PLAYING) {
+		seq = libxmp_get_sequence(ctx, p->pos);
+		p->sequence = (seq != NO_SEQUENCE) ? seq : 0;
+	}
+
 	return 0;
 }
