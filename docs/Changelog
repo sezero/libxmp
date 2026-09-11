@@ -1,7 +1,7 @@
 Stable versions
 ---------------
 
-4.7.3 (?):
+4.7.3 (20260911):
 	Changes by Alice Rowan:
 	- Fix hangs caused by changing the player mode to an S3M/IT mode
 	  with a loaded module sequence beginning with pattern FF.
